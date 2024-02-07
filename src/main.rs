@@ -12,27 +12,37 @@ impl PasswordImprover {
         Self { ch }
     }
 
-    fn improve(&self, val: String, length: usize) {
+    // password - the user supplied password
+    // length - the length of the bytes to add to the password
+    fn improve(&self, password: String, length: usize) {
         const MIN_SLEEP: u64 = 1;
         const MAX_SLEEP: u64 = 3;
-        let mut RNG: OsRng = OsRng {};
+        let mut range: OsRng = OsRng {};
 
-        let char_set = format!("0123456789!&#_@*~$={}", val);
-        let mut result: Vec<u8> = vec![0; length + val.len()];
-        let insert_index = RNG.next_u32() as usize % (char_set.len() - val.len());
+        let char_set = format!("0123456789!&#_@*~$={}", password);
+        let mut result: Vec<u8> = vec![0; length + password.len()];
+        // where to insert the user-supplied password into the result
+        let insert_index = range.next_u32() as usize % (char_set.len() - password.len());
 
-        for (idx, elem) in result.iter_mut().enumerate() {
-            *elem = char_set.as_bytes()[RNG.next_u32() as usize % char_set.len()];
-            //.get(RNG.next_u32() as usize % char_set.len())
-            //.unwrap()
-            //.clone();
-
-            if idx >= insert_index && idx < insert_index + val.len() {
-                *elem = val.as_bytes()[idx - insert_index];
-                //*elem = *val.as_bytes().get(idx - insert_index).unwrap();
-            }
-            //println!("{} {}", idx, (*elem) as char);
+        // this is technically not correct as you just can't treat chars as bytes. either
+        // result needs to be Vec<char> or password and char_set need to be Vec<u8> (or &[u8]).
+        for elem in result.iter_mut().take(insert_index) {
+            *elem = char_set.as_bytes()[range.next_u32() as usize % char_set.len()];
         }
+
+        for (ix, elem) in result
+            .iter_mut()
+            .skip(insert_index)
+            .take(password.len())
+            .enumerate()
+        {
+            *elem = password.as_bytes()[ix];
+        }
+
+        for elem in result.iter_mut().skip(insert_index + password.len()) {
+            *elem = char_set.as_bytes()[range.next_u32() as usize % char_set.len()];
+        }
+
         let ch = self.ch.clone();
 
         // pretend this is doing some work or syscalls or something
