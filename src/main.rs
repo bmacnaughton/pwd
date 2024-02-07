@@ -14,7 +14,7 @@ impl PasswordImprover {
 
     // password - the user supplied password
     // length - the length of the bytes to add to the password
-    fn improve(&self, password: String, length: usize) {
+    fn improve(&self, password: &str, length: usize) {
         const MIN_SLEEP: u64 = 1;
         const MAX_SLEEP: u64 = 3;
         let mut range: OsRng = OsRng {};
@@ -73,7 +73,7 @@ fn test_password_improver() {
     ];
 
     for password in bad_passwords {
-        improver.improve(password.clone(), 32);
+        improver.improve(&password, 32);
         match rx.recv() {
             Ok(pw) => {
                 if !pw.contains(&password) {
