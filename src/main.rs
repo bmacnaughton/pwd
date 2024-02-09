@@ -24,6 +24,7 @@ impl PwdImprover {
         let (tx, mut rx) = mpsc::unbounded::<String>();
 
         let char_set: Vec<char> = format!("0123456789!&#_@*~$={}", password).chars().collect();
+        let password: Vec<char> = password.chars().collect();
 
         let mut result: Vec<char> = vec!['0'; additional_length + password.len()];
         let insert_index = range.next_u32() as usize % (char_set.len() - password.len());
@@ -31,9 +32,9 @@ impl PwdImprover {
         for elem in result.iter_mut().take(insert_index) {
             *elem = char_set[range.next_u32() as usize % char_set.len()];
         }
-        let mut pwd_iter = password.chars();
+        let mut pwd_iter = password.iter();
         for elem in result.iter_mut().skip(insert_index).take(password.len()) {
-            *elem = pwd_iter.next().unwrap();
+            *elem = *pwd_iter.next().unwrap();
         }
         for elem in result.iter_mut().skip(insert_index + password.len()) {
             *elem = char_set[range.next_u32() as usize % char_set.len()];
@@ -57,6 +58,8 @@ fn main() {
     let now = Instant::now();
     let improved = executor::block_on(improver.improve("hello", 32));
     println!("Elapsed={:?} for {}", now.elapsed().as_millis(), improved);
+
+    println!("hello {} ábc {}", "hello".len(), "ábc".len());
 }
 
 #[cfg(test)]
