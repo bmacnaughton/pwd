@@ -8,3 +8,8 @@ edition = "2021"
 [dependencies]
 futures = { version = "0.3.30", features = ["thread-pool"] }
 rand = "0.8.5"
+
+# don't include debug info for deps, only our code. this makes debug builds
+# faster and smaller.
+[profile.dev.package."*"]
+debug = false

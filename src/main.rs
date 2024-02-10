@@ -58,8 +58,6 @@ fn main() {
     let now = Instant::now();
     let improved = executor::block_on(improver.improve("hello", 32));
     println!("Elapsed={:?} for {}", now.elapsed().as_millis(), improved);
-
-    println!("hello {} ábc {}", "hello".len(), "ábc".len());
 }
 
 #[cfg(test)]
